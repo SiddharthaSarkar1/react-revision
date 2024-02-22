@@ -9,6 +9,9 @@ import HookUseReducer from './components/HookUseReducer/HookUseReducer';
 import HookUseRef from './components/HookUseRef/HookUseRef';
 import HookUseState from './components/HookUseState/HookUseState';
 import HookUseState2 from './components/HookUseState/HookUseState2';
+import LiftingStateUp from './components2/LiftingStateUp/LiftingStateUp';
+import UseCallBackHook from './components2/useCallbackHook/UseCallBackHook';
+import UseMemoHook from './components2/useMemoHook/UseMemoHook';
 import GlobalState from './context';
 
 function App() {
@@ -28,6 +31,9 @@ function App() {
         <HookUseMemo />
         <HookUseCallback />
         <TestUseFetch />
+        <LiftingStateUp />
+        <UseMemoHook />
+        <UseCallBackHook />
       </div>
     </>
   )
