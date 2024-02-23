@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTodo, deleteTodo } from "../../store/slice";
+import { addTodo, deleteTodo, editTodo, fetchTodos } from "../../store/slice";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/material/Icon";
 
+import './ToDoList.css';
+
 const ToDoList = () => {
   const [currentTodo, setCurrentTodo] = useState("");
+  const [currentEditedTodoId, setCurrentEditedTodoId] = useState(null);
   const dispatch = useDispatch();
 
-  const { todoList } = useSelector((state) => state.todo);
+  const { todoList, todoListFromApi, loading } = useSelector(
+    (state) => state.todo
+  );
 
   console.log(todoList);
 
@@ -23,7 +28,30 @@ const ToDoList = () => {
     dispatch(deleteTodo(id));
   };
 
-  const handleUpdateTodo = (currentTodo) => {};
+  const handleUpdateTodo = (currentTodo) => {
+    setCurrentEditedTodoId(currentTodo.id);
+    setCurrentTodo(currentTodo.title);
+  };
+
+  const handleEditTodo = () => {
+    dispatch(editTodo({ currentEditedTodoId, currentTodo }));
+    setCurrentTodo("");
+  };
+
+  const FetchListOfTodosFromApi = () => {
+    dispatch(fetchTodos());
+  };
+
+  // console.log(todoListFromApi);
+
+  if (loading) {
+    return (
+      <div className="loadingDiv">
+        <h1>Fetching Todos From API. Please Wait.</h1>
+        <span className="loader"></span>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -38,9 +66,9 @@ const ToDoList = () => {
         variant="contained"
         color="success"
         disabled={currentTodo === ""}
-        onClick={handleAddTodo}
+        onClick={currentEditedTodoId !== null ? handleEditTodo : handleAddTodo}
       >
-        Add Todo
+        {currentEditedTodoId !== null ? "Edit Todo" : "Add Todo"}
       </Button>
 
       <div>
@@ -59,7 +87,7 @@ const ToDoList = () => {
                     </Button>
                     <Button
                       variant="outlined"
-                      onClick={() => handleUpdateTodo(item.id)}
+                      onClick={() => handleUpdateTodo(item)}
                     >
                       Update
                     </Button>
@@ -68,6 +96,21 @@ const ToDoList = () => {
               ))
             : null}
         </ul>
+      </div>
+
+      <div>
+        <Button variant="outlined" onClick={FetchListOfTodosFromApi}>
+          Fetch List of Todos From API
+        </Button>
+        <div>
+          <ul>
+            {todoListFromApi && todoListFromApi.length > 0
+              ? todoListFromApi.map((item) => (
+                  <li key={item.id}>{item.todo}</li>
+                ))
+              : null}
+          </ul>
+        </div>
       </div>
     </div>
   );

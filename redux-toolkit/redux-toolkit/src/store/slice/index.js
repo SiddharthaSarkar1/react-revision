@@ -1,10 +1,19 @@
 //name, initialState, reducers
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   todoList: [],
+  loading: false,
+  todoListFromApi: [],
+  isError: false,
 };
+
+export const fetchTodos = createAsyncThunk("fetchTodos", async () => {
+  const apiResponse = await fetch("https://dummyjson.com/todos");
+  const result = await apiResponse.json();
+  return result;
+});
 
 const todoReducer = createSlice({
   name: "todos",
@@ -31,9 +40,42 @@ const todoReducer = createSlice({
 
       return state;
     },
+    editTodo(state, action) {
+      console.log(action);
+
+      let getTodos = state.todoList;
+      const getCurrentTodoIndex = getTodos.findIndex(
+        (item) => item.id === action.payload.currentEditedTodoId
+      );
+
+      getTodos[getCurrentTodoIndex] = {
+        ...getTodos[getCurrentTodoIndex],
+        title: action.payload.currentTodo,
+      };
+
+      state.todoList = getTodos;
+
+      return state;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchTodos.pending, (state, action) => {
+      state.loading = true;
+    });
+
+    builder.addCase(fetchTodos.fulfilled, (state, action) => {
+      // console.log(action.payload);
+      state.loading = false;
+      state.todoListFromApi = action.payload.todos;
+    });
+
+    builder.addCase(fetchTodos.rejected, (state, action) => {
+      state.loading = false;
+      state.isError = true;
+    });
   },
 });
 
-export const { addTodo, deleteTodo } = todoReducer.actions;
+export const { addTodo, deleteTodo, editTodo } = todoReducer.actions;
 
 export default todoReducer.reducer;
